@@ -15,7 +15,7 @@
 
 ## 公开前必须完成
 
-1. **许可证映射已写入。** 项目自有文件使用 `LICENSE-MIT.txt`；两个上游 Skill 保留各自 LICENSE；范围见 `LICENSES.md`。GitHub 可能无法在仓库首页显示单一许可证，因为仓库包含多种许可证。[GitHub 许可说明](https://docs.github.com/en/enterprise-cloud@latest/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)
+1. **许可证映射已写入。** 项目自有文件使用 `LICENSES/MIT.txt`；两个上游 Skill 保留各自 LICENSE；范围见 `LICENSES.md`。MIT 文本放在独立许可证目录，避免 GitHub 将其误显示为整个多许可证仓库的唯一许可证。[GitHub 许可说明](https://docs.github.com/en/enterprise-cloud@latest/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)
 2. **个人数据排除项已核对。** `.gitignore` 排除 `data/profile.md`、题目材料、日报和 `data/复盘引擎/`；profile 未进入暂存区。扫描暂存文件未发现本机绝对路径、常见 GitHub Token 格式或个人邮箱。
 3. **本机信息已脱敏。** 审查报告使用通用路径表述，暂存内容中没有本机绝对路径。
 4. **已按用户选择捆绑完整整合包。** `kaogong` 与 `xingce-review-pro` 文件及其 MIT / GPL-3.0-only 许可分别保留；朱批录和花生十三未作为 Skill 包复制。
