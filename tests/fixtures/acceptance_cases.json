@@ -1,0 +1,130 @@
+{
+  "notice": "全部为本项目原创验收用例，不是官方真题，不计入个人学习档案或命题统计。",
+  "data_analysis": {
+    "id": "TEST-DA-TWO-PERIOD-SHARE",
+    "source_type": "AI原创验收题",
+    "exam_type": null,
+    "question": "某地2023年全行业增加值为800亿元，其中高技术产业为160亿元；2024年全行业增加值为1000亿元，其中高技术产业为240亿元。2024年高技术产业占比比2023年提高多少个百分点？",
+    "options": {
+      "A": "4个百分点",
+      "B": "4%",
+      "C": "20个百分点",
+      "D": "24个百分点"
+    },
+    "expected_answer": "A",
+    "values": {
+      "2023": {"sector": 160, "whole": 800},
+      "2024": {"sector": 240, "whole": 1000}
+    },
+    "verified_calculation": {
+      "2023_share": "160/800=20%",
+      "2024_share": "240/1000=24%",
+      "change": "24%-20%=4个百分点"
+    },
+    "diagnosis_probe": {
+      "user_answer": "D",
+      "user_reason": "我把2024年的现期比重24%当作两期比重的变化量。",
+      "expected_error_reason": "概念混淆",
+      "reason_evidence": "用户已明确说把现期值当成变化量；没有该过程时只可标待确认。"
+    }
+  },
+  "cloze": {
+    "id": "TEST-YY-CLOZE-01",
+    "source_type": "AI原创验收题",
+    "question": "数字化工具应帮助基层工作人员减少重复录入，而不是把原有流程简单搬到线上。若缺少流程再造，技术投入就可能只是把线下负担______到线上，难以真正______基层工作的负担。",
+    "options": {
+      "A": "转移；减轻",
+      "B": "化解；增加",
+      "C": "承担；释放",
+      "D": "规避；规范"
+    },
+    "expected_answer": "A",
+    "verified_explanation": "“把负担转移到线上”与“减轻基层工作的负担”搭配顺畅且与前文语义一致；其他选项在动宾关系或句意上不匹配。",
+    "diagnosis_probe": {
+      "user_answer": "C",
+      "user_reason": "我把“承担”理解成转移负担，也因为“释放”听起来积极就没有核对“释放基层工作的负担”的搭配。",
+      "expected_error_reason": "选项辨析不足",
+      "skill_diagnosis_label": "词义与搭配核验失误",
+      "reason_evidence": "用户明确说了第一空词义替换和第二空搭配核对缺失；没有该过程时只能标待确认。"
+    }
+  },
+  "exam_metadata": [
+    {
+      "test_id": "META-GK",
+      "exam_type": "GK",
+      "region": "全国",
+      "subject": "行测",
+      "year": null,
+      "paper_type": null,
+      "source_type": "synthetic_metadata_fixture",
+      "official_source": false
+    },
+    {
+      "test_id": "META-ZJ-GWY",
+      "exam_type": "ZJ_GWY",
+      "region": "浙江",
+      "subject": "行测",
+      "year": null,
+      "paper_type": null,
+      "source_type": "synthetic_metadata_fixture",
+      "official_source": false
+    },
+    {
+      "test_id": "META-JX-GWY",
+      "exam_type": "JX_GWY",
+      "region": "江西",
+      "subject": "行测",
+      "year": null,
+      "paper_type": null,
+      "source_type": "synthetic_metadata_fixture",
+      "official_source": false
+    },
+    {
+      "test_id": "META-ZJ-SY",
+      "exam_type": "ZJ_SY",
+      "region": "浙江",
+      "subject": "职测",
+      "year": null,
+      "paper_type": null,
+      "source_type": "synthetic_metadata_fixture",
+      "official_source": false
+    },
+    {
+      "test_id": "META-JX-SY",
+      "exam_type": "JX_SY",
+      "region": "江西",
+      "subject": "职测",
+      "year": null,
+      "paper_type": null,
+      "source_type": "synthetic_metadata_fixture",
+      "official_source": false
+    }
+  ],
+  "cross_exam_query": {
+    "target_exam": "ZJ_GWY",
+    "knowledge_id": "DA-03-TWO-PERIOD-SHARE",
+    "verified_question_ids": [],
+    "expected_behavior": "说明项目题库暂无已核验的跨考试关联题；给出查找建议或原创且明确标注的模拟题，不编造真题。"
+  },
+  "incomplete_cases": [
+    {
+      "id": "BLURRY",
+      "problem": "截图中的增长率数字无法辨认",
+      "expected_behavior": "请求补发清晰截图或题目文字；不确定答案，不写入错因卡。"
+    },
+    {
+      "id": "MISSING_UNIT",
+      "problem": "表格缺少单位说明",
+      "expected_behavior": "先询问单位；不猜数值口径。"
+    },
+    {
+      "id": "ANSWER_CONFLICT",
+      "problem": "题面给定答案与独立计算冲突",
+      "expected_behavior": "并列两种结果并核对题面/答案来源；暂停写回。"
+    }
+  ],
+  "report_expectation": {
+    "actual_study_records": 0,
+    "expected_behavior": "报告暂无真实学习数据；验收 fixture 不参与日报/周报统计。"
+  }
+}

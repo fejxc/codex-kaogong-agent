@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "source": "用户实施任务书 §2；尚未导入官方公告",
+  "verification_status": "provisional",
+  "exams": [
+    {
+      "id": "GK",
+      "name": "国家公务员考试",
+      "region": "全国",
+      "scope_hint": [
+        "行测",
+        "申论"
+      ],
+      "paper_types": [],
+      "official_requirements": "以目标年份官方大纲、公告和试卷类别为准",
+      "status": "待官方来源核验"
+    },
+    {
+      "id": "ZJ_GWY",
+      "name": "浙江省公务员考试",
+      "region": "浙江",
+      "scope_hint": [
+        "行测",
+        "申论"
+      ],
+      "paper_types": [],
+      "official_requirements": "以目标年份浙江官方大纲、公告和试卷类别为准",
+      "status": "待官方来源核验"
+    },
+    {
+      "id": "JX_GWY",
+      "name": "江西省公务员考试",
+      "region": "江西",
+      "scope_hint": [
+        "行测",
+        "申论"
+      ],
+      "paper_types": [],
+      "official_requirements": "以目标年份江西官方大纲、公告和试卷类别为准",
+      "status": "待官方来源核验"
+    },
+    {
+      "id": "ZJ_SY",
+      "name": "浙江省事业单位招聘考试",
+      "region": "浙江",
+      "scope_hint": [
+        "职测",
+        "综应",
+        "公基或岗位专业要求（如公告适用）"
+      ],
+      "paper_types": [],
+      "official_requirements": "单位、岗位、类别、科目和考试内容逐年依官方招聘公告核对",
+      "status": "不得默认 A—E 类或统一考试模式"
+    },
+    {
+      "id": "JX_SY",
+      "name": "江西省事业单位招聘考试",
+      "region": "江西",
+      "scope_hint": [
+        "职测",
+        "综应",
+        "公基或岗位专业要求（如公告适用）"
+      ],
+      "paper_types": [],
+      "official_requirements": "单位、岗位、类别、科目和考试内容逐年依官方招聘公告核对",
+      "status": "不得默认 A—E 类或统一考试模式"
+    }
+  ]
+}

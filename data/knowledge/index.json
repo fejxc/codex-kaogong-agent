@@ -1,0 +1,1104 @@
+{
+  "schema_version": 1,
+  "taxonomy": "可调整初始目录",
+  "priority": [
+    "用户提供的粉笔课程讲义、课堂笔记和专项目录",
+    "经核验的粉笔公开课程资料",
+    "目标年份官方考试大纲",
+    "其他 Skills 参考知识",
+    "模型补充分类"
+  ],
+  "notice": "以下节点仅由用户任务书给出或拆分，均为暂定分类，不代表粉笔官方完整目录，也不证明每类考试均考查。公式和答案仍需独立核验。",
+  "nodes": [
+    {
+      "id": "DA-01",
+      "path": [
+        "资料分析",
+        "现期量与基期量"
+      ],
+      "aliases": [
+        "基期量",
+        "现期量"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-02",
+      "path": [
+        "资料分析",
+        "增长率与增长量"
+      ],
+      "aliases": [
+        "增长率",
+        "增长量",
+        "增长率/增长量"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence",
+      "children": [
+        "DA-02-RATE",
+        "DA-02-AMOUNT"
+      ]
+    },
+    {
+      "id": "DA-03",
+      "path": [
+        "资料分析",
+        "比重与比重变化"
+      ],
+      "aliases": [
+        "比重",
+        "占比",
+        "基期比重",
+        "现期比重",
+        "两期比重"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence",
+      "children": [
+        "DA-03-BASE-SHARE",
+        "DA-03-TWO-PERIOD-SHARE"
+      ]
+    },
+    {
+      "id": "DA-04",
+      "path": [
+        "资料分析",
+        "平均数与平均数增长率"
+      ],
+      "aliases": [
+        "平均数",
+        "平均数增长率"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-05",
+      "path": [
+        "资料分析",
+        "倍数与倍数变化"
+      ],
+      "aliases": [
+        "倍数",
+        "倍数变化"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-06",
+      "path": [
+        "资料分析",
+        "年均增长"
+      ],
+      "aliases": [
+        "年均增长率",
+        "年均增长量"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-07",
+      "path": [
+        "资料分析",
+        "分数比较"
+      ],
+      "aliases": [
+        "分数大小比较"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-08",
+      "path": [
+        "资料分析",
+        "综合分析"
+      ],
+      "aliases": [
+        "综合判断题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-09",
+      "path": [
+        "资料分析",
+        "截位直除、百化分、估算等速算方法"
+      ],
+      "aliases": [
+        "截位直除",
+        "百化分",
+        "估算"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-01",
+      "path": [
+        "言语理解与表达",
+        "逻辑填空"
+      ],
+      "aliases": [
+        "选词填空"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-02",
+      "path": [
+        "言语理解与表达",
+        "实词辨析"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-03",
+      "path": [
+        "言语理解与表达",
+        "成语辨析"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-04",
+      "path": [
+        "言语理解与表达",
+        "语境呼应"
+      ],
+      "aliases": [
+        "上下文呼应"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-05",
+      "path": [
+        "言语理解与表达",
+        "词语搭配"
+      ],
+      "aliases": [
+        "固定搭配"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-06",
+      "path": [
+        "言语理解与表达",
+        "片段阅读"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-07",
+      "path": [
+        "言语理解与表达",
+        "中心理解"
+      ],
+      "aliases": [
+        "主旨概括"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-08",
+      "path": [
+        "言语理解与表达",
+        "细节判断"
+      ],
+      "aliases": [
+        "细节理解"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-09",
+      "path": [
+        "言语理解与表达",
+        "标题填入"
+      ],
+      "aliases": [
+        "标题选择"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-10",
+      "path": [
+        "言语理解与表达",
+        "语句排序"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-11",
+      "path": [
+        "言语理解与表达",
+        "语句填空"
+      ],
+      "aliases": [
+        "语句衔接"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "YY-12",
+      "path": [
+        "言语理解与表达",
+        "下文推断"
+      ],
+      "aliases": [
+        "推断下文"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-01",
+      "path": [
+        "判断推理",
+        "图形推理"
+      ],
+      "aliases": [
+        "图推"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-02",
+      "path": [
+        "判断推理",
+        "定义判断"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-03",
+      "path": [
+        "判断推理",
+        "类比推理"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-04",
+      "path": [
+        "判断推理",
+        "翻译推理"
+      ],
+      "aliases": [
+        "逻辑翻译"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-05",
+      "path": [
+        "判断推理",
+        "真假推理"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-06",
+      "path": [
+        "判断推理",
+        "组合排列"
+      ],
+      "aliases": [
+        "排列组合"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-07",
+      "path": [
+        "判断推理",
+        "加强论证"
+      ],
+      "aliases": [
+        "加强题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-08",
+      "path": [
+        "判断推理",
+        "削弱论证"
+      ],
+      "aliases": [
+        "削弱题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-09",
+      "path": [
+        "判断推理",
+        "前提假设"
+      ],
+      "aliases": [
+        "假设题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "PD-10",
+      "path": [
+        "判断推理",
+        "日常结论"
+      ],
+      "aliases": [
+        "可能性推理结论"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-01",
+      "path": [
+        "数量关系",
+        "方程法"
+      ],
+      "aliases": [
+        "列方程"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-02",
+      "path": [
+        "数量关系",
+        "代入排除"
+      ],
+      "aliases": [
+        "代入法"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-03",
+      "path": [
+        "数量关系",
+        "数字特性"
+      ],
+      "aliases": [
+        "奇偶性/整除性"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-04",
+      "path": [
+        "数量关系",
+        "工程问题"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-05",
+      "path": [
+        "数量关系",
+        "行程问题"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-06",
+      "path": [
+        "数量关系",
+        "经济利润"
+      ],
+      "aliases": [
+        "利润问题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-07",
+      "path": [
+        "数量关系",
+        "排列组合"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-08",
+      "path": [
+        "数量关系",
+        "概率问题"
+      ],
+      "aliases": [
+        "概率"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-09",
+      "path": [
+        "数量关系",
+        "几何问题"
+      ],
+      "aliases": [
+        "几何图形"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SL-10",
+      "path": [
+        "数量关系",
+        "其他典型数量题型"
+      ],
+      "aliases": [
+        "典型数量题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "CS-01",
+      "path": [
+        "常识判断与政治理论",
+        "政治理论"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "CS-02",
+      "path": [
+        "常识判断与政治理论",
+        "法律常识"
+      ],
+      "aliases": [
+        "法律"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "CS-03",
+      "path": [
+        "常识判断与政治理论",
+        "经济常识"
+      ],
+      "aliases": [
+        "经济"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "CS-04",
+      "path": [
+        "常识判断与政治理论",
+        "科技常识"
+      ],
+      "aliases": [
+        "科技"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "CS-05",
+      "path": [
+        "常识判断与政治理论",
+        "人文历史"
+      ],
+      "aliases": [
+        "历史人文"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "CS-06",
+      "path": [
+        "常识判断与政治理论",
+        "地理国情"
+      ],
+      "aliases": [
+        "地理"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "CS-07",
+      "path": [
+        "常识判断与政治理论",
+        "其他大纲规定内容"
+      ],
+      "aliases": [],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SLUN-01",
+      "path": [
+        "申论",
+        "归纳概括"
+      ],
+      "aliases": [
+        "概括题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SLUN-02",
+      "path": [
+        "申论",
+        "综合分析"
+      ],
+      "aliases": [
+        "分析题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SLUN-03",
+      "path": [
+        "申论",
+        "提出对策"
+      ],
+      "aliases": [
+        "对策题"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SLUN-04",
+      "path": [
+        "申论",
+        "公文写作"
+      ],
+      "aliases": [
+        "应用文"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SLUN-05",
+      "path": [
+        "申论",
+        "文章写作"
+      ],
+      "aliases": [
+        "大作文"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SLUN-06",
+      "path": [
+        "申论",
+        "材料阅读与信息提取"
+      ],
+      "aliases": [
+        "材料阅读"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SLUN-07",
+      "path": [
+        "申论",
+        "语言表达与论证"
+      ],
+      "aliases": [
+        "论证表达"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SY-01",
+      "path": [
+        "事业单位专属内容",
+        "职业能力倾向测验"
+      ],
+      "aliases": [
+        "职测"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SY-02",
+      "path": [
+        "事业单位专属内容",
+        "综合应用能力"
+      ],
+      "aliases": [
+        "综应"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SY-03",
+      "path": [
+        "事业单位专属内容",
+        "分类考试要求"
+      ],
+      "aliases": [
+        "事业单位分类考试"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SY-04",
+      "path": [
+        "事业单位专属内容",
+        "公共基础知识（适用时）"
+      ],
+      "aliases": [
+        "公基"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "SY-05",
+      "path": [
+        "事业单位专属内容",
+        "岗位相关专业知识（适用时）"
+      ],
+      "aliases": [
+        "专业知识"
+      ],
+      "status": "provisional",
+      "source": {
+        "type": "user_taskbook",
+        "reference": "实施任务书 §4.2",
+        "verified_against_chalk": false
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-02-RATE",
+      "path": [
+        "资料分析",
+        "增长率与增长量",
+        "增长率"
+      ],
+      "aliases": [
+        "增长率"
+      ],
+      "parent": "DA-02",
+      "status": "provisional",
+      "source": {
+        "type": "derived_child",
+        "reference": "实施任务书 §4.2；待粉笔目录核对"
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-02-AMOUNT",
+      "path": [
+        "资料分析",
+        "增长率与增长量",
+        "增长量"
+      ],
+      "aliases": [
+        "增长量"
+      ],
+      "parent": "DA-02",
+      "status": "provisional",
+      "source": {
+        "type": "derived_child",
+        "reference": "实施任务书 §4.2；待粉笔目录核对"
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-03-BASE-SHARE",
+      "path": [
+        "资料分析",
+        "比重与比重变化",
+        "基期比重"
+      ],
+      "aliases": [
+        "基期比重"
+      ],
+      "parent": "DA-03",
+      "status": "provisional",
+      "source": {
+        "type": "derived_child",
+        "reference": "实施任务书 §4.2；待粉笔目录核对"
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    },
+    {
+      "id": "DA-03-TWO-PERIOD-SHARE",
+      "path": [
+        "资料分析",
+        "比重与比重变化",
+        "两期比重变化"
+      ],
+      "aliases": [
+        "两期比重",
+        "两期比重变化",
+        "基期与现期比重比较"
+      ],
+      "parent": "DA-03",
+      "status": "provisional",
+      "source": {
+        "type": "derived_child",
+        "reference": "实施任务书示例 §4.3；待粉笔目录核对"
+      },
+      "exam_applicability": "candidate_only_requires_exam_specific_evidence"
+    }
+  ]
+}

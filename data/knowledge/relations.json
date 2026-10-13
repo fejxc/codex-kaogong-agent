@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "relations": [
+    {
+      "id": "R-DA-01",
+      "from": "DA-01",
+      "type": "prerequisite_of",
+      "to": "DA-02",
+      "explanation": "区分基期量和现期量是选择增长率/增长量计算基准的前提。",
+      "evidence": "依据基础量定义的实现期推断；课程顺序待粉笔资料核对。",
+      "status": "AI推测"
+    },
+    {
+      "id": "R-DA-02",
+      "from": "DA-02-RATE",
+      "type": "confusable_with",
+      "to": "DA-02-AMOUNT",
+      "explanation": "增长率是相对变化，增长量是绝对变化；题目问法和单位不同。",
+      "evidence": "定义与单位关系；适用于概念区分训练。",
+      "status": "数学关系已核验，课程标签待粉笔核对"
+    },
+    {
+      "id": "R-DA-03",
+      "from": "DA-01",
+      "type": "prerequisite_of",
+      "to": "DA-03-BASE-SHARE",
+      "explanation": "求基期比重通常要还原基期分子和基期总体。",
+      "evidence": "任务书 §4.3 示例及基期定义；具体公式需按题目已知条件核验。",
+      "status": "AI推测"
+    },
+    {
+      "id": "R-DA-04",
+      "from": "DA-03-BASE-SHARE",
+      "type": "confusable_with",
+      "to": "DA-03-TWO-PERIOD-SHARE",
+      "explanation": "基期比重是某一时期的结构量；两期比重变化比较两个时期的结构量。",
+      "evidence": "用户任务书 §4.3 提及两期比重，当前区分为暂定细分。",
+      "status": "AI推测"
+    },
+    {
+      "id": "R-DA-05",
+      "from": "DA-02-RATE",
+      "type": "relevant_to",
+      "to": "DA-03-TWO-PERIOD-SHARE",
+      "explanation": "某些两期比重比较可使用部分量和总体量的增长率还原基期比重。",
+      "evidence": "仅在题目同时给出所需增长率且变量定义匹配时使用；每题独立核验。",
+      "status": "数学推导候选"
+    }
+  ],
+  "notice": "关系可用于检索和复习建议，不代表粉笔课程顺序或任一考试大纲。"
+}
