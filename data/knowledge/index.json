@@ -1100,5 +1100,21 @@
       },
       "exam_applicability": "candidate_only_requires_exam_specific_evidence"
     }
+  ],
+  "derived_documents": [
+    {
+      "id": "DOC-DA-MINDMAP-01",
+      "path": "资料分析思维导图.md",
+      "scope": [
+        "资料分析"
+      ],
+      "covers": "DA-01～DA-09 暂定节点的思维导图式展开；另含材料阅读与做题流程（暂无 index 节点）",
+      "status": "provisional",
+      "source": {
+        "type": "ai_synthesized",
+        "reference": "2026-10-27 由 index.json 暂定节点 + xingce-review-pro 资料分析方法卡 11 张 + kaogong references/xingce.md 归纳；未对照粉笔讲义",
+        "verified_against_chalk": false
+      }
+    }
   ]
 }

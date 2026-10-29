@@ -37,5 +37,6 @@
 - 题库：`data/复盘引擎/题库/总题库.md`（EXAMRESEARCH 批次，387 题，2022-2026 三模块高频考点，逐题含官方解析与考点标签）；全量检索池 `题库/exam-research-pool.jsonl`（20,921 题，rg 按 kp/qid/year）
 - 增量导入：`python3 ~/Downloads/exam-research/scripts/integration/export_to_kaogong_bank.py --kp <主考点> --limit 30`
 - 母题卡库：`method-libraries/exam-research/母题卡/`（95 张，每主考点一张：频次/方法模板/变体/真题示例）；讲题收尾在第 6 项"方法讲解"末尾加一句**母题归纳**（属于哪张母题卡、本题变体、同类题数），有卡引用卡、无卡如实说明
+- 母题沉淀：讲题/复盘产出的新变体追加到 `data/复盘引擎/母题补充/<主考点>.md`（协议见该目录 README），不得写回 exam-research 源目录；`考我`/`复习` 出题检索顺序为 总题库 → 母题补充 → 全量池
 - 弱点档案↔考点统计映射：`~/Downloads/exam-research/data/weakness_kp_mapping.csv`
 <!-- END: exam-research 接入 -->
