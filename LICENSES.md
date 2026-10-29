@@ -9,3 +9,9 @@ This repository contains separately licensed components. It is **not a single-li
 - `huasheng13-skill` is not included.
 
 Use each component under its applicable license and keep the corresponding notices with it. GitHub may not identify one repository-wide license because this project is multi-licensed; see the file-level scope above.
+
+## 内容与使用声明（2026-10-29）
+
+- This repository is published for **personal study only; any commercial use is prohibited**（仅限个人学习，禁止商用）.
+- Question stems and official explanations under `data/复盘引擎/题库/` are aggregated from publicly circulated exam-recall collections (e.g. ERRRC/xingcezhenti). Copyright of the underlying exam content remains with its original authors, examination bodies and organizers; the repository owner claims no rights over it and will remove any contested content upon request.
+- Personal study records under `data/`（错因卡、弱点档案、学习者画像等）belong to the repository owner alone and contain no third-party personal information.

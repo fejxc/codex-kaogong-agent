@@ -21,17 +21,14 @@ python3 webapp/serve.py        # 默认 8901 端口，可加参数改端口
 
 > serve.py 只监听 127.0.0.1、只做静态文件和两个只读挂载，无任何业务逻辑；不启动它时页面仍可用「手动文件导入」，或退回 `python3 -m http.server -d webapp 8000`（无一键载入）。
 
-## 部署到 GitHub Pages（免费）
+## 部署到 GitHub Pages
 
-仓库是私有的，而免费版 Pages 要求公开仓库，所以走"**新建一个公开的纯客户端仓库**"：
+主仓库已是公开仓库，Pages 走 GitHub Actions（免费，工作流随 `webapp/` 更新自动部署）：
 
-1. 在 GitHub 新建公开仓库（如 `kaogong-web`）。
-2. 只把 `webapp/` 下的三个文件（index.html / app.js / style.css）+ 本 README 复制进去推送。
-3. 仓库 Settings → Pages → Source 选 `main` 根目录。
-4. 打开 `https://<用户名>.github.io/kaogong-web/`，在「设置」里填端点。
+1. 仓库 Settings → Pages → Source 选 **GitHub Actions**（只设置一次）。
+2. 此后每次 `webapp/` 有更新推送，自动部署到 `https://fejxc.github.io/codex-kaogong-agent/`。
 
-> 这三个文件是纯自研客户端代码，不含题库、方法库和个人数据——版权内容全部通过"设置页导入"进你自己浏览器的 IndexedDB，永不进入公开仓库。
-> 若你有 GitHub Pro，也可以直接把本私有仓库的 `webapp/` 用 Actions 部署为私有 Pages。
+备选：`./webapp/publish.sh --create <仓库名>` 可一键发布到独立公开仓库（只含客户端文件）。
 
 ## 端点与 CORS
 

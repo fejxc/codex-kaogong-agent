@@ -2,9 +2,9 @@
 __pycache__/
 *.py[cod]
 
-# Repo is private (GitHub = personal storage platform, 2026-10-29): study data
-# and the imported question bank under data/ are tracked. No Feishu or other
-# third-party uploads per AGENTS.md.
+# Repo is public since 2026-10-29 with a personal-use-only declaration
+# (see README/LICENSES): study data and the imported question bank under
+# data/ are tracked as backup. No Feishu or other third-party uploads.
 
 # Runtime lock from writeback.py — transient, not data.
 data/复盘引擎/.writeback.lock
