@@ -322,14 +322,27 @@ async function retrieveCards(userText, limit = 6, maxChars = 14000) {
   function name(p) { return p.split('/').pop().replace(/\.md$/, ''); }
 }
 
-async function buildMessages(history, userText) {
+async function buildMessages(history, userText, images) {
   const mode = $('#mode').value;
   const sys = MODE_PROMPTS[mode];
   let context = '';
   if (mode.startsWith('xingce')) context = await retrieveCards(userText);
   const msgs = [{ role: 'system', content: sys + (context ? '\n\n' + context : '') }];
-  for (const m of history.slice(-8)) msgs.push({ role: m.role, content: m.content });
-  msgs.push({ role: 'user', content: userText });
+  for (const m of history.slice(-8)) {
+    // 历史消息只带文本，避免图片数据反复重发撑大上下文
+    msgs.push({ role: m.role, content: m.content + (m.images && m.images.length ? '\n[该消息附有图片，已在当前轮说明]' : '') });
+  }
+  if (images && images.length) {
+    msgs.push({
+      role: 'user',
+      content: [
+        { type: 'text', text: userText || '请结合这些图片讲解。' },
+        ...images.map(u => ({ type: 'image_url', image_url: { url: u } })),
+      ],
+    });
+  } else {
+    msgs.push({ role: 'user', content: userText });
+  }
   return msgs;
 }
 
@@ -394,10 +407,75 @@ function renderChatLog() {
   const log = $('#chat-log');
   log.innerHTML = '';
   history.forEach(m => {
-    if (m.role === 'user') { addMsg('user', m.content); return; }
+    if (m.role === 'user') { addMsg('user', m.content === '[图片]' ? '' : m.content, m.images); return; }
     const bubble = addMsg('assistant', '');
     bubble.innerHTML = '<div class="md">' + renderMd(m.content || '') + '</div>';
   });
+}
+
+/* ---------------- 附件（图片粘贴/拖拽/选择，多模态消息） ---------------- */
+
+let attachments = [];
+
+function readAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+/* 大图等比压到最长边 1568px；小 PNG 原样保留（截图文字清晰） */
+async function normalizeImage(file) {
+  const url = await readAsDataURL(file);
+  try {
+    const img = await loadImage(url);
+    const max = 1568;
+    const scale = Math.min(1, max / Math.max(img.width, img.height));
+    if (scale === 1 && file.size < 900_000) return url;
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(img.width * scale));
+    c.height = Math.max(1, Math.round(img.height * scale));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.85);
+  } catch (e) {
+    return url; // 解码失败就用原图
+  }
+}
+
+async function addAttachment(file) {
+  if (!file || !/^image\//.test(file.type)) { flash('只支持图片附件（截图、照片）', true); return; }
+  if (attachments.length >= 4) { flash('一条消息最多 4 张图片', true); return; }
+  const url = await normalizeImage(file);
+  attachments.push({ url, name: file.name || '截图' });
+  renderAttachBar();
+}
+
+function renderAttachBar() {
+  const bar = $('#attach-bar');
+  bar.innerHTML = '';
+  bar.classList.toggle('has-atts', attachments.length > 0);
+  attachments.forEach((a, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'att-chip';
+    chip.innerHTML = `<img src="${a.url}" alt="${esc(a.name)}"><button class="att-del" title="移除">×</button>`;
+    chip.querySelector('.att-del').addEventListener('click', () => { attachments.splice(i, 1); renderAttachBar(); });
+    bar.appendChild(chip);
+  });
+}
+
+function collectImageFiles(list) {
+  return [...(list || [])].filter(f => /^image\//.test(f.type));
 }
 
 /* ---------------- 对话 UI ---------------- */
@@ -405,11 +483,22 @@ function renderChatLog() {
 let history = [];
 let sending = false;
 
-function addMsg(role, text) {
+function addMsg(role, text, images) {
   const el = document.createElement('div');
   el.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
   const icon = role === 'user' ? '🙋' : '🎓';
   el.innerHTML = `<div class="who">${icon}</div><div class="bubble">${esc(text)}</div>`;
+  if (images && images.length) {
+    const imgs = document.createElement('div');
+    imgs.className = 'msg-imgs';
+    images.forEach(u => {
+      const a = document.createElement('a');
+      a.href = u; a.target = '_blank'; a.rel = 'noopener';
+      a.innerHTML = `<img src="${u}" alt="附件图片">`;
+      imgs.appendChild(a);
+    });
+    el.querySelector('.bubble').appendChild(imgs);
+  }
   $('#chat-log').appendChild(el);
   scrollChat();
   return el.querySelector('.bubble');
@@ -420,22 +509,28 @@ function scrollChat() { const log = $('#chat-log'); log.scrollTop = log.scrollHe
 async function sendChat() {
   const input = $('#chat-input');
   const text = input.value.trim();
-  if (!text || sending) return;
+  if ((!text && !attachments.length) || sending) return;
   if (!Settings.ready()) { switchTab('settings'); flash('请先完成模型端点设置', true); return; }
   sending = true;
   $('#chat-send').disabled = true;
   input.value = '';
-  addMsg('user', text);
+  const sentImages = attachments.map(a => a.url);
+  attachments = [];
+  renderAttachBar();
+  addMsg('user', text, sentImages);
   const bubble = addMsg('assistant', '');
   const stream = makeStreamer(bubble);
   try {
-    const msgs = await buildMessages(history, text);
+    const msgs = await buildMessages(history, text, sentImages);
     await chatStream(msgs, d => stream.onDelta(d));
     stream.flush();
-    history.push({ role: 'user', content: text }, { role: 'assistant', content: stream.raw });
+    history.push({ role: 'user', content: text || '[图片]', images: sentImages }, { role: 'assistant', content: stream.raw });
     saveChat();
   } catch (e) {
     bubble.innerHTML = `<span class="err-box">${esc(e.message)}</span>`;
+    // 发送失败时把图片还回附件区，用户可直接重试
+    attachments = sentImages.map(u => ({ url: u, name: '截图' })).concat(attachments);
+    renderAttachBar();
   } finally {
     sending = false;
     $('#chat-send').disabled = false;
@@ -720,6 +815,26 @@ $('#rec-clear').addEventListener('click', async () => {
   if (confirm('确定清空本浏览器的错题记录？')) { await dbClear('records'); refreshStatus(); renderRecords(); }
 });
 $('#chat-new').addEventListener('click', newChat);
+
+/* 图片附件：粘贴 / 拖拽 / 选择 */
+$('#chat-input').addEventListener('paste', e => {
+  const files = collectImageFiles(e.clipboardData && e.clipboardData.items
+    ? [...e.clipboardData.items].filter(it => it.kind === 'file').map(it => it.getAsFile()) : []);
+  if (files.length) { e.preventDefault(); files.forEach(addAttachment); }
+});
+const chatView = $('#view-chat');
+chatView.addEventListener('dragover', e => { e.preventDefault(); chatView.classList.add('dragover'); });
+chatView.addEventListener('dragleave', () => chatView.classList.remove('dragover'));
+chatView.addEventListener('drop', e => {
+  e.preventDefault();
+  chatView.classList.remove('dragover');
+  collectImageFiles(e.dataTransfer && e.dataTransfer.files).forEach(addAttachment);
+});
+$('#attach-btn').addEventListener('click', () => $('#attach-file').click());
+$('#attach-file').addEventListener('change', e => {
+  collectImageFiles(e.target.files).forEach(addAttachment);
+  e.target.value = '';
+});
 
 Settings.load();
 refreshStatus();

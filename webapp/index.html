@@ -55,9 +55,14 @@
     <!-- 学习对话 -->
     <section id="view-chat" class="view active">
       <div id="chat-log"></div>
-      <div id="chat-input-row">
-        <textarea id="chat-input" rows="3" placeholder="贴题目、给思路，或直接问。Enter 发送，Shift+Enter 换行。"></textarea>
-        <button id="chat-send">发送</button>
+      <div id="composer">
+        <div id="attach-bar"></div>
+        <div class="composer-row">
+          <button id="attach-btn" title="添加图片（也可直接粘贴或拖拽）">📎</button>
+          <textarea id="chat-input" rows="3" placeholder="贴题目、给思路，或直接问；截图可直接 Ctrl+V 粘贴。Enter 发送，Shift+Enter 换行。"></textarea>
+          <button id="chat-send">发送</button>
+          <input type="file" id="attach-file" accept="image/*" multiple hidden>
+        </div>
       </div>
     </section>
 
