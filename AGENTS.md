@@ -29,3 +29,13 @@
 
 - 一般讲题先给结论和关键步骤，按需展开；申论、综应反馈区分材料证据、结构建议和训练量表，不冒称官方分数。
 - 只读取完成当前任务所需的知识卡和记录。不得读取、导出或上传未授权的个人资料；不开启第三方上传、OCR API 或定时任务。
+
+<!-- BEGIN: exam-research 接入（2026-10-29，外部研究库，勿随上游 git pull 覆盖） -->
+## 外部研究库接入（exam-research）
+
+- 复盘/讲题时的量化证据与公式依据：`xingce-review-pro/references/method-libraries/exam-research/INDEX.md`（软链接到 `~/Downloads/exam-research`，含 provenance 与质量分级；陷阱词/易混词/公式手册/高频考点排行）
+- 题库：`data/复盘引擎/题库/总题库.md`（EXAMRESEARCH 批次，387 题，2022-2026 三模块高频考点，逐题含官方解析与考点标签）；全量检索池 `题库/exam-research-pool.jsonl`（20,921 题，rg 按 kp/qid/year）
+- 增量导入：`python3 ~/Downloads/exam-research/scripts/integration/export_to_kaogong_bank.py --kp <主考点> --limit 30`
+- 母题卡库：`method-libraries/exam-research/母题卡/`（95 张，每主考点一张：频次/方法模板/变体/真题示例）；讲题收尾在第 6 项"方法讲解"末尾加一句**母题归纳**（属于哪张母题卡、本题变体、同类题数），有卡引用卡、无卡如实说明
+- 弱点档案↔考点统计映射：`~/Downloads/exam-research/data/weakness_kp_mapping.csv`
+<!-- END: exam-research 接入 -->

@@ -11,3 +11,8 @@ data/reviews/daily/*
 !data/reviews/README.md
 data/tracker/
 data/复盘引擎/
+
+# exam-research mount holds absolute symlinks into ~/Downloads/exam-research;
+# keep the mount local, track only the integration index.
+.agents/skills/xingce-review-pro/references/method-libraries/exam-research/*
+!.agents/skills/xingce-review-pro/references/method-libraries/exam-research/INDEX.md
