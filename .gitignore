@@ -2,15 +2,12 @@
 __pycache__/
 *.py[cod]
 
-# Personal study history and imported question materials stay local.
-data/profile.md
-data/questions/*
-!data/questions/README.md
-!data/questions/.gitkeep
-data/reviews/daily/*
-!data/reviews/README.md
-data/tracker/
-data/复盘引擎/
+# Repo is private (GitHub = personal storage platform, 2026-10-29): study data
+# and the imported question bank under data/ are tracked. No Feishu or other
+# third-party uploads per AGENTS.md.
+
+# Runtime lock from writeback.py — transient, not data.
+data/复盘引擎/.writeback.lock
 
 # exam-research mount holds absolute symlinks into ~/Downloads/exam-research;
 # keep the mount local, track only the integration index.
