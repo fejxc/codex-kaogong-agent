@@ -1,0 +1,36 @@
+name: Deploy webapp to GitHub Pages
+
+# 仅发布 webapp/ 纯客户端文件（不含 data/、题库、方法库）。
+# 前提：私有仓库部署 Pages 需要 GitHub Pro；开启入口在
+# 仓库 Settings → Pages → Source 选 "GitHub Actions"。
+# 免费方案见 webapp/publish.sh（推送到独立公开仓库）。
+
+on:
+  push:
+    branches: [main]
+    paths: ["webapp/**", ".github/workflows/deploy-pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: webapp
+      - id: deployment
+        uses: actions/deploy-pages@v4
