@@ -107,12 +107,13 @@ const DB = { db: null };
 function dbOpen() {
   if (DB.db) return Promise.resolve(DB.db);
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('kaogong-web', 1);
+    const req = indexedDB.open('kaogong-web', 2);
     req.onupgradeneeded = () => {
       const db = req.result;
-      db.createObjectStore('files', { keyPath: 'path' });
-      db.createObjectStore('bank', { keyPath: 'qid' });
-      db.createObjectStore('records', { keyPath: 'event_id' });
+      if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'path' });
+      if (!db.objectStoreNames.contains('bank')) db.createObjectStore('bank', { keyPath: 'qid' });
+      if (!db.objectStoreNames.contains('records')) db.createObjectStore('records', { keyPath: 'event_id' });
+      if (!db.objectStoreNames.contains('chats')) db.createObjectStore('chats', { keyPath: 'id' });
     };
     req.onsuccess = () => { DB.db = req.result; resolve(DB.db); };
     req.onerror = () => reject(req.error);
@@ -332,6 +333,73 @@ async function buildMessages(history, userText) {
   return msgs;
 }
 
+/* ---------------- 对话历史（IndexedDB 持久化） ---------------- */
+
+let currentChatId = null;
+
+function chatTitle() {
+  const first = history.find(m => m.role === 'user');
+  return first ? first.content.replace(/\s+/g, ' ').slice(0, 24) : '新对话';
+}
+
+async function saveChat() {
+  if (!history.length) return;
+  if (!currentChatId) currentChatId = 'c-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  await dbPut('chats', { id: currentChatId, title: chatTitle(), updatedAt: Date.now(), messages: history.slice() });
+  renderHistList();
+}
+
+async function renderHistList() {
+  let chats = [];
+  try { chats = (await dbGetAll('chats')).sort((a, b) => b.updatedAt - a.updatedAt); } catch (e) {}
+  const list = $('#hist-list');
+  list.innerHTML = '';
+  if (!chats.length) { list.innerHTML = '<div class="hist-empty">还没有对话，发第一条消息开始。</div>'; return; }
+  chats.slice(0, 50).forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'hist-item' + (c.id === currentChatId ? ' active' : '');
+    el.innerHTML = `<span class="t">${esc(c.title)}</span><button class="del" title="删除此对话">×</button>`;
+    el.addEventListener('click', e => {
+      if (e.target.classList.contains('del')) return;
+      openChat(c.id);
+    });
+    el.querySelector('.del').addEventListener('click', async () => {
+      await tx('chats', 'readwrite', s => s.delete(c.id));
+      if (currentChatId === c.id) newChat();
+      renderHistList();
+    });
+    list.appendChild(el);
+  });
+}
+
+function newChat() {
+  history = [];
+  currentChatId = null;
+  $('#chat-log').innerHTML = '';
+  renderHistList();
+  $('#chat-input').focus();
+}
+
+async function openChat(id) {
+  const c = await tx('chats', 'readonly', s => s.get(id));
+  if (!c) return;
+  currentChatId = c.id;
+  history = (c.messages || []).slice();
+  renderChatLog();
+  renderHistList();
+  switchTab('chat');
+}
+
+function renderChatLog() {
+  const log = $('#chat-log');
+  log.innerHTML = '';
+  history.forEach(m => {
+    if (m.role === 'user') { addMsg('user', m.content); return; }
+    const bubble = addMsg('assistant', '');
+    bubble.innerHTML = '<div class="md">' + renderMd(m.content || '') + '</div>';
+  });
+}
+
 /* ---------------- 对话 UI ---------------- */
 
 let history = [];
@@ -365,6 +433,7 @@ async function sendChat() {
     await chatStream(msgs, d => stream.onDelta(d));
     stream.flush();
     history.push({ role: 'user', content: text }, { role: 'assistant', content: stream.raw });
+    saveChat();
   } catch (e) {
     bubble.innerHTML = `<span class="err-box">${esc(e.message)}</span>`;
   } finally {
@@ -642,6 +711,13 @@ $('#rec-import').addEventListener('change', e => e.target.files[0] && importReco
 $('#rec-clear').addEventListener('click', async () => {
   if (confirm('确定清空本浏览器的错题记录？')) { await dbClear('records'); refreshStatus(); renderRecords(); }
 });
+$('#chat-new').addEventListener('click', newChat);
 
 Settings.load();
 refreshStatus();
+renderHistList();
+// 启动时自动恢复最近一次对话，刷新不丢上下文
+dbGetAll('chats').then(chats => {
+  const latest = chats.sort((a, b) => b.updatedAt - a.updatedAt)[0];
+  if (latest) openChat(latest.id);
+});
