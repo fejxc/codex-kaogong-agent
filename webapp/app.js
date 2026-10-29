@@ -37,6 +37,39 @@ const MODULE_HINTS = [
   [/数量关系|方程|行程|工程|概率|排列|几何/, ['数量关系', '方程', '行程', '工程', '概率']],
 ];
 
+/* ---------------- Markdown 渲染（marked 本地打包 + 轻量消毒） ---------------- */
+
+function sanitizeHtml(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  doc.querySelectorAll('script,iframe,object,embed,link,meta').forEach(n => n.remove());
+  doc.querySelectorAll('*').forEach(n => {
+    [...n.attributes].forEach(a => {
+      if (/^on/i.test(a.name) || a.value.trim().toLowerCase().startsWith('javascript:')) n.removeAttribute(a.name);
+    });
+  });
+  return doc.body.innerHTML;
+}
+
+function renderMd(raw) {
+  let html;
+  try {
+    html = marked.parse(String(raw || ''), { breaks: true, gfm: true });
+  } catch (e) {
+    html = esc(raw);
+  }
+  return sanitizeHtml(html);
+}
+
+/* 流式期间节流重绘，结束后强制刷一帧最终版式 */
+function throttlePaint(fn, ms = 150) {
+  let timer = null, hasPending = false;
+  const run = () => { timer = null; fn(); };
+  return {
+    kick() { hasPending = true; if (!timer) timer = setTimeout(run, ms); },
+    flush() { if (timer) { clearTimeout(timer); timer = null; } if (hasPending) { hasPending = false; fn(); } },
+  };
+}
+
 /* ---------------- 小工具 ---------------- */
 
 const $ = (sel) => document.querySelector(sel);
@@ -212,28 +245,41 @@ async function chatStream(messages, onDelta) {
   return full;
 }
 
-/* 把流式增量写入气泡：思考灰显、正文正常、首字前显示等待提示 */
+/* 把流式增量写入气泡：思考灰显纯文本，正文按 Markdown 节流渲染，首字前显示等待提示 */
 function makeStreamer(bubble) {
   const wait = document.createElement('div');
   wait.className = 'hint';
   wait.textContent = '⏳ 等待模型输出（自建服务器首个字可能要一两分钟）…';
   bubble.appendChild(wait);
-  let rSpan = null, cSpan = null, rLen = 0;
-  return (d) => {
-    if (wait.parentNode) wait.remove();
-    if (d.type === 'reason') {
-      rLen += d.text.length;
-      if (!rSpan) { rSpan = document.createElement('span'); rSpan.className = 'reasoning'; rSpan.textContent = '〔思考〕'; bubble.appendChild(rSpan); }
-      rSpan.textContent += d.text;
-      if (rLen > 4000) rSpan.textContent = '〔思考超过 4000 字，已折叠〕';
-    } else if (!cSpan) {
-      cSpan = document.createElement('span');
-      bubble.appendChild(cSpan);
-      cSpan.textContent += d.text;
-    } else {
-      cSpan.textContent += d.text;
-    }
+
+  let rSpan = null, rLen = 0;
+  let cDiv = null, contentRaw = '';
+  const paint = () => {
+    if (!cDiv) { cDiv = document.createElement('div'); cDiv.className = 'md'; bubble.appendChild(cDiv); }
+    cDiv.innerHTML = renderMd(contentRaw);
     scrollChat();
+  };
+  const kick = throttlePaint(paint).kick;
+
+  return {
+    onDelta(d) {
+      if (wait.parentNode) wait.remove();
+      if (d.type === 'reason') {
+        rLen += d.text.length;
+        if (!rSpan) { rSpan = document.createElement('span'); rSpan.className = 'reasoning'; bubble.appendChild(rSpan); }
+        if (rLen <= 4000) rSpan.textContent = '〔思考〕' + (rSpan.dataset.tail || '') + d.text;
+        else { rSpan.dataset.tail = (rSpan.dataset.tail || '') + d.text; rSpan.textContent = '〔思考超过 4000 字，已折叠，继续生成中…〕'; }
+        scrollChat();
+      } else {
+        contentRaw += d.text;
+        kick();
+      }
+    },
+    flush() {
+      if (wait.parentNode) wait.remove();
+      if (contentRaw) { throttlePaint(paint).flush(); paint(); }
+    },
+    get raw() { return contentRaw; },
   };
 }
 
@@ -316,8 +362,9 @@ async function sendChat() {
   const stream = makeStreamer(bubble);
   try {
     const msgs = await buildMessages(history, text);
-    await chatStream(msgs, stream);
-    history.push({ role: 'user', content: text }, { role: 'assistant', content: bubble.textContent });
+    await chatStream(msgs, d => stream.onDelta(d));
+    stream.flush();
+    history.push({ role: 'user', content: text }, { role: 'assistant', content: stream.raw });
   } catch (e) {
     bubble.innerHTML = `<span class="err-box">${esc(e.message)}</span>`;
   } finally {
@@ -468,7 +515,8 @@ function gradeQuiz(card, q) {
 async function explainQuiz(card, q) {
   const expl = card.querySelector('.expl');
   expl.style.display = 'block';
-  expl.textContent = '生成讲解中…';
+  expl.classList.add('md');
+  expl.textContent = '⏳ 生成讲解中…（自建服务器可能要一两分钟）';
   const userAns = card.dataset.userAns || '(未作答)';
   const official = q.answer || '';
   const opts = (q.options || []).map(o => `${o.label}. ${stripHtml(o.text)}`).join('\n');
@@ -482,10 +530,12 @@ async function explainQuiz(card, q) {
   try {
     const msgs = await buildMessages([], prompt);
     let out = '', think = 0;
+    const kick = throttlePaint(() => { expl.innerHTML = renderMd(out); }, 200);
     await chatStream(msgs, d => {
-      if (d.type === 'content') { out += d.text; expl.textContent = out; }
-      else { think += d.text.length; expl.textContent = `⏳ 模型思考中… 已思考 ${think} 字（正文随后到）`; }
+      if (d.type === 'content') { out += d.text; kick.kick(); }
+      else { think += d.text.length; if (!out) expl.textContent = `⏳ 模型思考中… 已思考 ${think} 字（正文随后到）`; }
     });
+    expl.innerHTML = renderMd(out) || esc('（模型没有返回正文，可重试）');
   } catch (e) {
     expl.innerHTML = `<span class="err-box">${esc(e.message)}</span>`;
   }
