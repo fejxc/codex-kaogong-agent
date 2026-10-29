@@ -39,8 +39,11 @@ python3 webapp/serve.py        # 默认 8901 端口，可加参数改端口
 | 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` | 浏览器直连可用 |
 | Ollama | `http://localhost:11434/v1` | 启动前设 `OLLAMA_ORIGINS=*` |
 | LM Studio | `http://localhost:1234/v1` | 默认允许本地跨域 |
+| 自建 vLLM 等 | `http://你的服务/v1` | 浏览器直连常被 CORS 拦（Failed to fetch）→ 勾选**「本地代理」**，经 serve.py 同源转发即可，无需改服务器；服务器侧也可加 `--allowed-origins '["*"]'` 根治 |
 
-API Key 存在 localStorage，仅个人浏览器使用；公共电脑不要保存 Key。
+- 模型名注意**大小写**要和 `/v1/models` 返回的 id 完全一致（如 `qwen3.8-27b-fp8`）。
+- 思考型模型（Qwen3/GLM 思考版等）会先流式输出思考过程（灰字显示），正文随后；自建集群首字可能要一两分钟，属排队，不是页面卡死。
+- API Key 存在 localStorage，仅个人浏览器使用；公共电脑不要保存 Key。
 
 ## 与本机 data/ 的关系
 

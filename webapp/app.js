@@ -131,15 +131,16 @@ function parseBankJsonl(text) {
 /* ---------------- 设置 ---------------- */
 
 const Settings = {
-  data: { base: '', key: '', model: '' },
+  data: { base: '', key: '', model: '', proxy: false },
   load() {
     try { Object.assign(this.data, JSON.parse(localStorage.getItem('kg.settings') || '{}')); } catch (e) {}
     $('#set-base').value = this.data.base;
     $('#set-key').value = this.data.key;
     $('#set-model').value = this.data.model;
+    $('#set-proxy').checked = !!this.data.proxy;
   },
   save() {
-    this.data = { base: $('#set-base').value.trim(), key: $('#set-key').value.trim(), model: $('#set-model').value.trim() };
+    this.data = { base: $('#set-base').value.trim(), key: $('#set-key').value.trim(), model: $('#set-model').value.trim(), proxy: $('#set-proxy').checked };
     localStorage.setItem('kg.settings', JSON.stringify(this.data));
     flash('设置已保存（仅本浏览器）');
   },
@@ -158,7 +159,10 @@ function flash(text, isError) {
 
 async function chatStream(messages, onDelta) {
   if (!Settings.ready()) throw new Error('请先在「设置」里填 Base URL 和模型名');
-  const url = Settings.data.base.replace(/\/+$/, '') + '/chat/completions';
+  const useProxy = Settings.data.proxy;
+  const url = useProxy
+    ? location.origin + '/llm/chat/completions'
+    : Settings.data.base.replace(/\/+$/, '') + '/chat/completions';
   let res;
   try {
     res = await fetch(url, {
@@ -166,15 +170,21 @@ async function chatStream(messages, onDelta) {
       headers: {
         'Content-Type': 'application/json',
         ...(Settings.data.key ? { 'Authorization': 'Bearer ' + Settings.data.key } : {}),
+        ...(useProxy ? { 'X-Target-Base': Settings.data.base.replace(/\/+$/, '') } : {}),
       },
       body: JSON.stringify({ model: Settings.data.model, messages, stream: true, temperature: 0.3 }),
     });
   } catch (e) {
-    throw new Error('连接失败：' + e.message + ' —— 检查 Base URL、端点是否允许浏览器跨域（CORS）。Ollama 需设置 OLLAMA_ORIGINS=*。');
+    throw new Error('连接失败：' + e.message + ' —— 若用自建端点，多为 CORS 拦截：勾选「本地代理」（serve.py 启动）即可绕过；Ollama 也可设 OLLAMA_ORIGINS=*。');
   }
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    throw new Error('HTTP ' + res.status + '：' + body.slice(0, 300));
+    let hint = '';
+    try {
+      const err = JSON.parse(body).error?.message;
+      if (err) hint = ' —— ' + err + '（模型名是否正确？注意大小写）';
+    } catch (e) {}
+    throw new Error('HTTP ' + res.status + '：' + body.slice(0, 300) + hint);
   }
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
@@ -191,12 +201,40 @@ async function chatStream(messages, onDelta) {
       const payload = s.slice(5).trim();
       if (payload === '[DONE]') continue;
       try {
-        const delta = JSON.parse(payload).choices?.[0]?.delta?.content;
-        if (delta) { full += delta; onDelta(delta); }
+        const d = JSON.parse(payload).choices?.[0]?.delta;
+        // 兼容思考型模型（如 Qwen3 系列）：reasoning_content 先流式到达
+        const reason = d && (d.reasoning_content || d.reasoning);
+        if (reason) { onDelta({ type: 'reason', text: reason }); }
+        if (d && d.content) { full += d.content; onDelta({ type: 'content', text: d.content }); }
       } catch (e) { /* 忽略不完整行 */ }
     }
   }
   return full;
+}
+
+/* 把流式增量写入气泡：思考灰显、正文正常、首字前显示等待提示 */
+function makeStreamer(bubble) {
+  const wait = document.createElement('div');
+  wait.className = 'hint';
+  wait.textContent = '⏳ 等待模型输出（自建服务器首个字可能要一两分钟）…';
+  bubble.appendChild(wait);
+  let rSpan = null, cSpan = null, rLen = 0;
+  return (d) => {
+    if (wait.parentNode) wait.remove();
+    if (d.type === 'reason') {
+      rLen += d.text.length;
+      if (!rSpan) { rSpan = document.createElement('span'); rSpan.className = 'reasoning'; rSpan.textContent = '〔思考〕'; bubble.appendChild(rSpan); }
+      rSpan.textContent += d.text;
+      if (rLen > 4000) rSpan.textContent = '〔思考超过 4000 字，已折叠〕';
+    } else if (!cSpan) {
+      cSpan = document.createElement('span');
+      bubble.appendChild(cSpan);
+      cSpan.textContent += d.text;
+    } else {
+      cSpan.textContent += d.text;
+    }
+    scrollChat();
+  };
 }
 
 /* ---------------- 方法库检索注入 ---------------- */
@@ -275,9 +313,10 @@ async function sendChat() {
   input.value = '';
   addMsg('user', text);
   const bubble = addMsg('assistant', '');
+  const stream = makeStreamer(bubble);
   try {
     const msgs = await buildMessages(history, text);
-    await chatStream(msgs, d => { bubble.textContent += d; scrollChat(); });
+    await chatStream(msgs, stream);
     history.push({ role: 'user', content: text }, { role: 'assistant', content: bubble.textContent });
   } catch (e) {
     bubble.innerHTML = `<span class="err-box">${esc(e.message)}</span>`;
@@ -442,8 +481,11 @@ async function explainQuiz(card, q) {
 要求：题型识别 → 答案结论 → 关键推理 → 我的错因（依据我的答案与官方答案差异）→ 易错点与复盘动作。`;
   try {
     const msgs = await buildMessages([], prompt);
-    let out = '';
-    await chatStream(msgs, d => { out += d; expl.textContent = out; });
+    let out = '', think = 0;
+    await chatStream(msgs, d => {
+      if (d.type === 'content') { out += d.text; expl.textContent = out; }
+      else { think += d.text.length; expl.textContent = `⏳ 模型思考中… 已思考 ${think} 字（正文随后到）`; }
+    });
   } catch (e) {
     expl.innerHTML = `<span class="err-box">${esc(e.message)}</span>`;
   }

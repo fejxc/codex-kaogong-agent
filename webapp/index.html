@@ -89,6 +89,10 @@
         <label>模型名
           <input id="set-model" placeholder="deepseek-chat / glm-4.6 / qwen2.5:14b …">
         </label>
+        <label class="chk" style="display:flex;gap:6px;align-items:center;margin-top:8px">
+          <input type="checkbox" id="set-proxy" style="width:auto">
+          本地代理：自建端点被浏览器跨域（CORS）拦截时勾选，请求改经 serve.py 同源转发
+        </label>
         <div class="row">
           <button id="set-save">保存</button>
           <button id="set-test">测试连通</button>

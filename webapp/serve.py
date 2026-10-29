@@ -11,6 +11,8 @@
 """
 import json
 import sys
+import urllib.error
+import urllib.request
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -37,6 +39,45 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path == "/methods.json":
             return self._send_methods()
         return super().do_GET()
+
+    def do_POST(self):
+        # /llm/* 同源反向代理：浏览器同源请求不触发 CORS，转发到请求头 X-Target-Base 指定的端点。
+        # 仅用于自建 OpenAI 兼容端点未开跨域的场景；本服务只监听 127.0.0.1。
+        if not self.path.startswith("/llm/"):
+            self.send_error(404)
+            return
+        target_base = self.headers.get("X-Target-Base", "").rstrip("/")
+        subpath = self.path[4:]  # 去掉 /llm
+        if not (target_base.startswith("http://") or target_base.startswith("https://")):
+            self.send_error(400, "missing or invalid X-Target-Base")
+            return
+        url = target_base + subpath
+        length = int(self.headers.get("Content-Length") or 0)
+        body = self.rfile.read(length)
+        req = urllib.request.Request(url, data=body, method="POST")
+        req.add_header("Content-Type", self.headers.get("Content-Type", "application/json"))
+        if self.headers.get("Authorization"):
+            req.add_header("Authorization", self.headers["Authorization"])
+        try:
+            resp = urllib.request.urlopen(req, timeout=300)
+        except urllib.error.HTTPError as e:
+            resp = e
+        except Exception as e:  # noqa: BLE001 — 上游不可达时给页面一个可读错误
+            payload = json.dumps({"error": {"message": f"代理无法连到 {url}: {e}"}}).encode()
+            self.send_response(502)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+            return
+        self.send_response(resp.status if hasattr(resp, "status") else resp.code)
+        self.send_header("Content-Type", resp.headers.get("Content-Type", "application/json"))
+        self.end_headers()
+        try:
+            while chunk := resp.read(8192):
+                self.wfile.write(chunk)
+        finally:
+            resp.close()
 
     def _send_file(self, path, ctype):
         if not path.is_file():
