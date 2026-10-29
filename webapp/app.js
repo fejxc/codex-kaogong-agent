@@ -42,6 +42,18 @@ const MODULE_HINTS = [
 const $ = (sel) => document.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+/* 题库 stem/options 含 HTML：转纯文本用于展示与提示词 */
+function stripHtml(s) {
+  return String(s ?? '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|tr|h[1-6])>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, '\n\n').trim();
+}
+const hasImg = (q) => /<img|<svg/i.test(q.stem || '') || (q.options || []).some(o => /<img|<svg/i.test(o.text || ''));
+
 async function sha256Hex(text) {
   if (crypto && crypto.subtle) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -86,6 +98,35 @@ const dbPut   = (store, val) => tx(store, 'readwrite', s => s.put(val));
 const dbGetAll= (store) => tx(store, 'readonly', s => s.getAll());
 const dbClear = (store) => tx(store, 'readwrite', s => s.clear());
 const dbCount = (store) => tx(store, 'readonly', s => s.count());
+
+/* 分块批量写入：一个事务写 CHUNK 条，块间让出事件循环刷新进度 */
+async function bulkPut(store, items, onProgress, chunk = 800) {
+  for (let i = 0; i < items.length; i += chunk) {
+    const slice = items.slice(i, i + chunk);
+    await tx(store, 'readwrite', s => { for (const it of slice) s.put(it); });
+    if (onProgress) onProgress(Math.min(i + chunk, items.length), items.length);
+  }
+  return items.length;
+}
+
+function progress(text) {
+  const el = $('#import-progress');
+  el.style.display = text ? 'block' : 'none';
+  el.textContent = text || '';
+}
+
+function parseBankJsonl(text) {
+  const out = [];
+  for (const line of text.split('\n')) {
+    const s = line.trim();
+    if (!s) continue;
+    try {
+      const q = JSON.parse(s);
+      if (q.qid && q.stem) out.push(q);
+    } catch (e) { /* 跳过坏行 */ }
+  }
+  return out;
+}
 
 /* ---------------- 设置 ---------------- */
 
@@ -247,43 +288,67 @@ async function sendChat() {
   }
 }
 
-/* ---------------- 资料导入 ---------------- */
+/* ---------------- 资料载入 ---------------- */
 
 async function importLibrary(fileList) {
   const mdFiles = [...fileList].filter(f => /\.md$/i.test(f.name) && f.size < 400_000);
-  let n = 0;
-  for (const f of mdFiles) {
-    const rel = (f.webkitRelativePath || f.name);
-    await dbPut('files', { path: rel, text: await f.text() });
-    n++;
+  progress(`方法库读取中… 0/${mdFiles.length}`);
+  const items = [];
+  for (let i = 0; i < mdFiles.length; i++) {
+    items.push({ path: mdFiles[i].webkitRelativePath || mdFiles[i].name, text: await mdFiles[i].text() });
+    if (i % 50 === 49) progress(`方法库读取中… ${i + 1}/${mdFiles.length}`);
   }
+  await bulkPut('files', items, (x, y) => progress(`方法库写入中… ${x}/${y}`));
+  progress('');
   refreshStatus();
-  flash(`方法库已导入 ${n} 个 Markdown 文件（仅本浏览器）`);
+  flash(`方法库已导入 ${items.length} 个 Markdown 文件（仅本浏览器）`);
 }
 
 async function importBank(file) {
   const text = await file.text();
-  let n = 0;
+  let items;
   if (/\.jsonl$/i.test(file.name) || text.trim().startsWith('{')) {
-    for (const line of text.split('\n')) {
-      const s = line.trim();
-      if (!s) continue;
-      try {
-        const q = JSON.parse(s);
-        if (q.qid && q.stem) { await dbPut('bank', q); n++; }
-      } catch (e) { /* 跳过坏行 */ }
-    }
+    items = parseBankJsonl(text);
   } else {
     // 总题库.md：按 "### " 题块粗切，qid 用内容散列
-    const blocks = text.split(/\n(?=### )/).filter(b => b.includes('答案') || b.includes('- '));
-    for (const b of blocks) {
-      const qid = 'MD-' + (await sha256Hex(b)).slice(0, 12);
-      await dbPut('bank', { qid, module: '', kp: '', year: '', paper: '', stem: b, options: [], answer: '', explanation: '' });
-      n++;
+    items = [];
+    for (const b of text.split(/\n(?=### )/)) {
+      if (!(b.includes('答案') || b.includes('- '))) continue;
+      items.push({ qid: 'MD-' + (await sha256Hex(b)).slice(0, 12), module: '', kp: '', year: '', paper: '', stem: b, options: [], answer: '', explanation: '' });
     }
   }
+  await bulkPut('bank', items, (x, y) => progress(`题库写入中… ${x}/${y}`));
+  progress('');
   refreshStatus();
-  flash(`题库已导入 ${n} 题（仅本浏览器，不上传）`);
+  flash(`题库已导入 ${items.length} 题（仅本浏览器，不上传）`);
+}
+
+/* 本地运行器一键载入：/bank.jsonl 与 /methods.json 由 serve.py 只读挂载 */
+async function loadLocal(url, label, store, map) {
+  let res;
+  try {
+    res = await fetch(url);
+  } catch (e) {
+    flash(`${label}载入失败：${e.message}`, true);
+    return;
+  }
+  if (res.status === 404) {
+    flash(`${label}未挂载：请用「python3 webapp/serve.py」启动后重试，或改用手动文件导入`, true);
+    return;
+  }
+  if (!res.ok) { flash(`${label}载入失败：HTTP ${res.status}`, true); return; }
+
+  progress(`${label}下载解析中…（大文件约需十几秒）`);
+  let items;
+  if (store === 'bank') {
+    items = parseBankJsonl(await res.text());
+  } else {
+    items = (await res.json()).map(map || (x => x));
+  }
+  await bulkPut(store, items, (x, y) => progress(`${label}写入中… ${x}/${y}`));
+  progress('');
+  refreshStatus();
+  flash(`${label}已载入 ${items.length} 条`);
 }
 
 /* ---------------- 考我 ---------------- */
@@ -292,44 +357,56 @@ async function startQuiz() {
   const kp = $('#quiz-kp').value.trim();
   const n = Math.max(1, Math.min(20, parseInt($('#quiz-n').value, 10) || 5));
   const bank = await dbGetAll('bank');
-  const pool = kp ? bank.filter(q => (q.kp || '').includes(kp) || (q.stem || '').includes(kp)) : bank;
-  if (!pool.length) { flash('题库里没有匹配的题：先在「设置」导入题库，或换个考点关键词', true); return; }
+  const pool = (kp ? bank.filter(q => (q.kp || '').includes(kp) || (q.module || '').includes(kp) || (q.stem || '').includes(kp)) : bank)
+    .filter(q => !hasImg(q));
+  if (!pool.length) { flash('题库里没有可文字作答的匹配题：换个考点关键词，或先载入题库', true); return; }
   const picked = pool.sort(() => Math.random() - 0.5).slice(0, n);
-  renderQuiz(picked);
+  renderQuiz(picked, pool);
 }
 
-function renderQuiz(questions) {
+function renderQuiz(questions, pool) {
   const area = $('#quiz-area');
   area.innerHTML = '';
-  questions.forEach((q, idx) => {
-    const card = document.createElement('div');
-    card.className = 'quiz-item';
-    const meta = [q.year, q.paper, q.kp].filter(Boolean).join(' ｜ ');
-    const opts = (q.options || []).map(o =>
-      `<label data-label="${esc(o.label)}"><input type="radio" name="q${idx}" value="${esc(o.label)}"><b>${esc(o.label)}</b> ${esc(o.text ?? '')}</label>`
-    ).join('');
-    card.innerHTML = `
-      <p class="meta">第 ${idx + 1} 题${meta ? ' ｜ ' + esc(meta) : ''}</p>
-      <p class="stem">${esc(q.stem)}</p>
-      <div class="opts">${opts || '<span class="hint">（无选项，主观作答后由模型判讲）</span>'}</div>
-      <div class="row">
-        <button class="grade">判分</button>
-        <button class="explain" style="display:none">要讲解</button>
-        <button class="save" style="display:none">存错题</button>
-      </div>
-      <div class="verdict" style="display:none"></div>
-      <div class="expl" style="display:none"></div>`;
-    area.appendChild(card);
+  const used = new Set(questions.map(q => q.qid));
+  questions.forEach((q, idx) => area.appendChild(buildQuizCard(q, idx, pool, used)));
+}
 
-    card.addEventListener('change', () => {
-      card.querySelectorAll('.opts label').forEach(l =>
-        l.classList.toggle('picked', l.querySelector('input').checked));
-    });
+function buildQuizCard(q, idx, pool, used) {
+  const card = document.createElement('div');
+  card.className = 'quiz-item';
+  const meta = [q.year, q.paper, q.kp].filter(Boolean).join(' ｜ ');
+  const opts = (q.options || []).map(o =>
+    `<label data-label="${esc(o.label)}"><input type="radio" name="q${idx}-${Math.random().toString(36).slice(2,6)}" value="${esc(o.label)}"><b>${esc(o.label)}</b> ${esc(stripHtml(o.text))}</label>`
+  ).join('');
+  card.innerHTML = `
+    <p class="meta">第 ${idx + 1} 题${meta ? ' ｜ ' + esc(meta) : ''}</p>
+    <p class="stem">${esc(stripHtml(q.stem))}</p>
+    <div class="opts">${opts || '<span class="hint">（无选项，主观作答后由模型判讲）</span>'}</div>
+    <div class="row">
+      <button class="grade">判分</button>
+      <button class="explain" style="display:none">要讲解</button>
+      <button class="save" style="display:none">存错题</button>
+      <button class="swap">换一道</button>
+    </div>
+    <div class="verdict" style="display:none"></div>
+    <div class="expl" style="display:none"></div>`;
 
-    card.querySelector('.grade').addEventListener('click', () => gradeQuiz(card, q));
-    card.querySelector('.explain').addEventListener('click', () => explainQuiz(card, q));
-    card.querySelector('.save').addEventListener('click', () => saveWrong(card, q));
+  card.addEventListener('change', () => {
+    card.querySelectorAll('.opts label').forEach(l =>
+      l.classList.toggle('picked', l.querySelector('input').checked));
   });
+
+  card.querySelector('.grade').addEventListener('click', () => gradeQuiz(card, q));
+  card.querySelector('.explain').addEventListener('click', () => explainQuiz(card, q));
+  card.querySelector('.save').addEventListener('click', () => saveWrong(card, q));
+  card.querySelector('.swap').addEventListener('click', () => {
+    const alt = (pool || []).find(x => !used.has(x.qid) && !hasImg(x));
+    if (!alt) { card.querySelector('.swap').textContent = '没有更多了'; card.querySelector('.swap').disabled = true; return; }
+    used.add(alt.qid);
+    const fresh = buildQuizCard(alt, idx, pool, used);
+    card.replaceWith(fresh);
+  });
+  return card;
 }
 
 function gradeQuiz(card, q) {
@@ -355,10 +432,10 @@ async function explainQuiz(card, q) {
   expl.textContent = '生成讲解中…';
   const userAns = card.dataset.userAns || '(未作答)';
   const official = q.answer || '';
-  const opts = (q.options || []).map(o => `${o.label}. ${o.text}`).join('\n');
+  const opts = (q.options || []).map(o => `${o.label}. ${stripHtml(o.text)}`).join('\n');
   const bankExpl = q.explanation ? `\n库内官方解析：\n${q.explanation}` : '';
   const prompt = `请按行测讲题协议讲解这道题。
-题面：${q.stem}
+题面：${stripHtml(q.stem)}
 选项：${opts || '（无）'}
 我的答案：${userAns}
 官方答案：${official || '未知'}${bankExpl}
@@ -377,7 +454,7 @@ async function explainQuiz(card, q) {
 async function saveWrong(card, q) {
   const userAns = card.dataset.userAns || '';
   const date = new Date().toISOString().slice(0, 10);
-  const stemNorm = (q.stem || '').replace(/\s+/g, '').slice(0, 120);
+  const stemNorm = stripHtml(q.stem).replace(/\s+/g, '').slice(0, 120);
   const event_id = (await sha256Hex(`${date}|${q.qid}|${stemNorm}|${userAns}|attempt-1`)).slice(0, 16);
   const existing = await tx('records', 'readonly', s => s.get(event_id));
   const rec = existing || {
@@ -463,6 +540,8 @@ $('#set-test').addEventListener('click', async () => {
 });
 $('#imp-lib').addEventListener('change', e => e.target.files.length && importLibrary(e.target.files));
 $('#imp-bank').addEventListener('change', e => e.target.files[0] && importBank(e.target.files[0]));
+$('#load-bank-local').addEventListener('click', () => loadLocal('/bank.jsonl', '题库', 'bank'));
+$('#load-methods-local').addEventListener('click', () => loadLocal('/methods.json', '方法库', 'files'));
 $('#imp-lib-clear').addEventListener('click', async () => { await dbClear('files'); refreshStatus(); });
 $('#imp-bank-clear').addEventListener('click', async () => { await dbClear('bank'); refreshStatus(); });
 $('#quiz-start').addEventListener('click', startQuiz);

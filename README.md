@@ -45,7 +45,7 @@ AGENTS.md（路由宪法：Skill 选择、答案权威、写回门禁、隐私�
 
 ## 网页客户端（webapp/）
 
-不依赖 ZCode 的浏览器版：`python3 -m http.server -d webapp 8000` 本地即用，或按 [webapp/README.md](webapp/README.md) 部署到 GitHub Pages。讲解走你自己的 OpenAI 兼容端点（DeepSeek/智谱/Ollama/LM Studio）；方法库、题库、错题、API Key 全部只存浏览器本地，部署产物不含任何题库与个人数据。
+不依赖 ZCode 的浏览器版：`python3 webapp/serve.py` 启动（含题库/方法库一键只读挂载），本地 <http://127.0.0.1:8901> 即用，或按 [webapp/README.md](webapp/README.md) 部署到 GitHub Pages。讲解走你自己的 OpenAI 兼容端点（DeepSeek/智谱/Ollama/LM Studio）；方法库、题库、错题、API Key 全部只存浏览器本地，部署产物不含任何题库与个人数据。
 
 ## 数据备份与恢复（私有仓库策略）
 

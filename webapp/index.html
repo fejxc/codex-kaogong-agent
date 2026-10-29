@@ -96,7 +96,17 @@
         <p class="hint">常用：DeepSeek https://api.deepseek.com/v1 ｜ 智谱 https://open.bigmodel.cn/api/paas/v4 ｜ Ollama http://localhost:11434/v1（需设 OLLAMA_ORIGINS=*）｜ LM Studio http://localhost:1234/v1。Key 只存本浏览器 localStorage，不会出现在部署仓库里。</p>
       </div>
       <div class="card">
-        <h2>导入资料（只进本浏览器，不上传任何服务器）</h2>
+        <h2>载入资料</h2>
+        <p class="hint" style="margin:0 0 8px">用本地运行器启动（<code>python3 webapp/serve.py</code>）后，一键载入题库与方法库：</p>
+        <div class="row">
+          <button id="load-bank-local">一键载入题库（2 万题）</button>
+          <button id="load-methods-local">一键载入方法库（1 千卡）</button>
+        </div>
+        <div id="import-progress" class="hint" style="display:none"></div>
+        <p class="hint">部署到 GitHub Pages 时没有本地挂载，改用下面的手动文件导入；效果相同。</p>
+      </div>
+      <div class="card">
+        <h2>手动文件导入（只进本浏览器，不上传任何服务器）</h2>
         <label class="btn-like">导入方法库（选 .agents/skills/xingce-review-pro/references 文件夹）
           <input type="file" id="imp-lib" webkitdirectory hidden>
         </label>
