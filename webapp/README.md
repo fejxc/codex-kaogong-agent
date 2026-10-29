@@ -1,0 +1,46 @@
+# 网页客户端（webapp/）
+
+公考备考台的纯静态网页版：不依赖 ZCode / Codex，在任何浏览器里使用，讲解由你自己的 **OpenAI 兼容端点**（DeepSeek / 智谱 / Ollama / LM Studio / vLLM 等）生成。
+
+## 功能
+
+- **学习对话**：四个模式（自由 / 行测讲题 / 行测复盘 / 申论·综应·公基），系统提示词按原 Skill 协议提炼；行测模式会自动检索已导入的方法卡注入上下文。
+- **考我**：从导入的题库按考点抽样，**判分在本地**（对照库内官方答案，不花 token），讲解可选调用模型生成。
+- **错题记录**：`event_id` 幂等（SHA-256 短键），存浏览器 IndexedDB，可导出 JSON 手动合并回本机 `data/复盘引擎/`。
+- **数据边界**：方法库、题库、错题、API Key 全部只存本浏览器；没有任何后端，部署产物不含任何版权题库与个人数据。
+
+## 本地运行（零部署）
+
+```bash
+cd webapp
+python3 -m http.server 8000
+# 打开 http://127.0.0.1:8000
+```
+
+## 部署到 GitHub Pages（免费）
+
+仓库是私有的，而免费版 Pages 要求公开仓库，所以走"**新建一个公开的纯客户端仓库**"：
+
+1. 在 GitHub 新建公开仓库（如 `kaogong-web`）。
+2. 只把 `webapp/` 下的三个文件（index.html / app.js / style.css）+ 本 README 复制进去推送。
+3. 仓库 Settings → Pages → Source 选 `main` 根目录。
+4. 打开 `https://<用户名>.github.io/kaogong-web/`，在「设置」里填端点。
+
+> 这三个文件是纯自研客户端代码，不含题库、方法库和个人数据——版权内容全部通过"设置页导入"进你自己浏览器的 IndexedDB，永不进入公开仓库。
+> 若你有 GitHub Pro，也可以直接把本私有仓库的 `webapp/` 用 Actions 部署为私有 Pages。
+
+## 端点与 CORS
+
+| 端点 | Base URL | 备注 |
+|---|---|---|
+| DeepSeek | `https://api.deepseek.com/v1` | 浏览器直连可用 |
+| 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` | 浏览器直连可用 |
+| Ollama | `http://localhost:11434/v1` | 启动前设 `OLLAMA_ORIGINS=*` |
+| LM Studio | `http://localhost:1234/v1` | 默认允许本地跨域 |
+
+API Key 存在 localStorage，仅个人浏览器使用；公共电脑不要保存 Key。
+
+## 与本机 data/ 的关系
+
+- 导出按钮生成 `webapp-records-YYYY-MM-DD.json`，字段与 `data/复盘引擎/` 错题结构对齐，可手动归档。
+- 网页端与本机 ZCode 端是**两个独立记录源**，统计时同样不能互相相加。
