@@ -33,7 +33,6 @@ AGENTS.md（路由宪法：Skill 选择、答案权威、写回门禁、隐私�
 │   └── scripts/writeback.py            唯一结构化写回入口（--cwd data/）
 ├── .agents/skills/kaogong/             申论/综应/职测/公基/规划（MIT）
 ├── scripts/record_daily.py             日报写入器（event_id 幂等，独立于上游朱批录）
-├── webapp/                             纯静态网页客户端（自有 OpenAI 兼容端点，见 webapp/README.md）
 ├── tests/test_project_contract.py      项目契约测试（路由规则/索引 schema/写回幂等）
 └── data/
     ├── knowledge/                      暂定知识树 index.json + 派生文档（思维导图）
@@ -49,10 +48,6 @@ AGENTS.md（路由宪法：Skill 选择、答案权威、写回门禁、隐私�
 `.agents/skills/xingce-review-pro/references/method-libraries/exam-research/` 内除 INDEX.md 外均为指向 `~/Downloads/exam-research`（58,890 题真题研究库，非 git 仓库）的软链接：公式手册、成语频次、高频考点 Top100、95 张母题卡。接入点与质量分级见该目录 [INDEX.md](.agents/skills/xingce-review-pro/references/method-libraries/exam-research/INDEX.md)；题库本体在 `data/复盘引擎/题库/`（总题库 387 题 + 全量池 20,921 题，rg 按 kp/qid/year 检索）。
 
 **学习闭环**：讲题收尾做母题归纳（引用母题卡）→ 新变体沉淀到 `data/复盘引擎/母题补充/<主考点>.md` → `考我` 按总题库 → 母题补充 → 全量池的顺序取题。
-
-## 网页客户端（webapp/）
-
-不依赖 ZCode 的浏览器版：`python3 webapp/serve.py` 启动（含题库/方法库一键只读挂载），本地 <http://127.0.0.1:8901> 即用，或按 [webapp/README.md](webapp/README.md) 部署到 GitHub Pages。讲解走你自己的 OpenAI 兼容端点（DeepSeek/智谱/Ollama/LM Studio）；方法库、题库、错题、API Key 全部只存浏览器本地，部署产物不含任何题库与个人数据。
 
 ## 数据备份与恢复
 
