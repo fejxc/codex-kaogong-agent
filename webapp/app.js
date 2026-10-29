@@ -250,7 +250,7 @@ async function chatStream(messages, onDelta) {
 function makeStreamer(bubble) {
   const wait = document.createElement('div');
   wait.className = 'hint';
-  wait.textContent = '⏳ 等待模型输出（自建服务器首个字可能要一两分钟）…';
+  wait.innerHTML = '<span class="spin"></span>等待模型输出（自建服务器首个字可能要一两分钟）…';
   bubble.appendChild(wait);
 
   let rSpan = null, rLen = 0;
@@ -575,6 +575,14 @@ function gradeQuiz(card, q) {
   verdict.textContent = right
     ? `✔ 回答正确（你选 ${userAns}）`
     : `✘ 回答错误：你选 ${userAns}，官方答案 ${official || '库内缺失'}`;
+  card.querySelectorAll('.opts label').forEach(l => {
+    const v = l.dataset.label;
+    l.classList.remove('picked');
+    if (official && v === official) l.classList.add('is-official');
+    if (!right && picked && v === userAns) l.classList.add('is-wrong');
+    const input = l.querySelector('input');
+    if (input) input.disabled = true;
+  });
   card.querySelector('.explain').style.display = '';
   if (!right && official) card.querySelector('.save').style.display = '';
   card.dataset.userAns = userAns;
@@ -585,7 +593,7 @@ async function explainQuiz(card, q) {
   const expl = card.querySelector('.expl');
   expl.style.display = 'block';
   expl.classList.add('md');
-  expl.textContent = '⏳ 生成讲解中…（自建服务器可能要一两分钟）';
+  expl.innerHTML = '<span class="spin"></span>生成讲解中…（自建服务器可能要一两分钟）';
   const userAns = card.dataset.userAns || '(未作答)';
   const official = q.answer || '';
   const opts = (q.options || []).map(o => `${o.label}. ${stripHtml(o.text)}`).join('\n');
