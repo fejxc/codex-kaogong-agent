@@ -53,6 +53,8 @@ AGENTS.md（路由宪法：Skill 选择、答案权威、写回门禁、隐私�
 
 - 仓库 `fejxc/codex-kaogong-agent` 自 2026-10-29 起为**公开仓库**（含 `data/` 学习数据与题库，附上方使用声明），同时作为个人备份平台：约 39MB 全量入库。
 - 新机恢复：克隆本仓库 → 安装 exam-research 到 `~/Downloads/exam-research` → 重建挂载软链接（参照 INDEX.md 表格内的源路径）→ 新开任务刷新技能索引。
+- 本机防误删：exam-research 源库（1.1GB，非 git）另有本地压缩快照 `~/Downloads/exam-research-snapshot-20261030.tar.gz`（552MB，45,613 条目）。快照与源库同盘，不防磁盘故障；异地备份方案（私有仓库或云盘）待定。
+- 挂载健康可随时用 `python3 -m unittest discover -s tests -t .` 验证：软链接失效会在契约测试中报错，而不是拖到讲题中途。
 - 不上传飞书或任何第三方服务；不开启 OCR API 或定时任务。
 
 ## 日常操作约定
@@ -63,7 +65,7 @@ AGENTS.md（路由宪法：Skill 选择、答案权威、写回门禁、隐私�
 
 ## 第三方 Skills 与更新
 
-- `.agents/skills/` 内两份 Skill 是**唯一权威副本**（版本化）。用户级目录若装有同名 `kaogong`，以项目副本为准；两处同时存在时应对齐，避免漂移。
+- `.agents/skills/` 内两份 Skill 是**唯一权威副本**（版本化）。用户级目录的同名 `kaogong` 副本已于 2026-10-30 删除（经 diff 确认与项目副本一致）；若经 skill-installer 等途径重装出现双份，删除用户级副本或先 diff 对齐，避免双份加载与漂移。
 - 更新流程：按[审查报告](docs/第三方技能审查.md)记录的仓库和版本重新克隆到临时目录审查验证，再更新 `.agents/skills/`；不执行上游安装脚本；个人状态永远留在 `data/`，不进 Skill 包。
 - 朱批录 `kaogong-study-tracker` 只作日报字段参考；不调用其非幂等计数脚本（`update_daily.js` 会重复计数，错题列表无幂等键）。
 - 花生十三仅作明确要求时的补充参考；上游无独立 LICENSE，不复制其资料。

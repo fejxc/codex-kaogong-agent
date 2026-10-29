@@ -20,6 +20,7 @@ EXAM_IDS = {"GK", "ZJ_GWY", "JX_GWY", "ZJ_SY", "JX_SY"}
 SOURCE_TYPES = {"official_question", "verified_compilation", "training_simulation", "ai_original", "unknown"}
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 EVENT_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
+DAILY_SCHEMA_VERSION = 1
 
 
 class InputError(ValueError):
@@ -157,6 +158,9 @@ def write_event(data_dir: Path, event: dict[str, Any]) -> dict[str, Any]:
                 raise InputError(f"现有日报无法安全读取，未覆盖：{target}") from exc
             if not isinstance(day, dict) or day.get("date") != event["date"] or not isinstance(day.get("events", []), list):
                 raise InputError(f"现有日报结构错误，未覆盖：{target}")
+            version = day.get("schema_version")
+            if version is not None and version != DAILY_SCHEMA_VERSION:
+                raise InputError(f"现有日报 schema_version={version}，本脚本只写 {DAILY_SCHEMA_VERSION}，未覆盖：{target}")
 
         for other in daily.glob("????-??-??.json"):
             if other == target:
@@ -196,7 +200,7 @@ def write_event(data_dir: Path, event: dict[str, Any]) -> dict[str, Any]:
             status = "written"
 
         events.sort(key=lambda item: item["event_id"])
-        day.update({"date": event["date"], "events": events, "event_ids": [item["event_id"] for item in events], "modules": summarize(events), "updated_at": now})
+        day.update({"schema_version": DAILY_SCHEMA_VERSION, "date": event["date"], "events": events, "event_ids": [item["event_id"] for item in events], "modules": summarize(events), "updated_at": now})
         atomic_write(target, day)
         return {"status": status, "event_id": event["event_id"], "path": str(target), "event_count": len(events)}
 

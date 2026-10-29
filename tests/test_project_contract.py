@@ -123,6 +123,7 @@ class ProjectContractTests(unittest.TestCase):
             duplicate = write_event(data_dir, normalize(base))
             path = data_dir / "daily/2026-10-13.json"
             day = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(day["schema_version"], 1)
             self.assertEqual(first["status"], "written")
             self.assertEqual(duplicate["status"], "noop")
             self.assertEqual(len(day["events"]), 1)
@@ -155,6 +156,44 @@ class ProjectContractTests(unittest.TestCase):
             reused_id = dict(first, date="2026-10-14")
             with self.assertRaises(InputError):
                 write_event(data_dir, normalize(reused_id))
+
+    def test_daily_writer_upgrades_legacy_day_files_without_schema_version(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = Path(tmp)
+            daily = data_dir / "daily"
+            daily.mkdir(parents=True)
+            legacy = {
+                "date": "2026-10-12",
+                "events": [{"date": "2026-10-12", "event_id": "LEGACY-1", "kind": "practice_batch", "exam_type": None, "province": None, "year": None, "paper_type": None, "source": None, "source_type": "unknown", "modules": {"言语理解": {"wrong": 2, "total": 10}}, "note": "", "recorded_at": "2026-10-12T20:00:00+08:00"}],
+                "event_ids": ["LEGACY-1"],
+                "modules": {"言语理解": {"wrong": 2, "total": 10, "accuracy_complete": 1}},
+            }
+            (daily / "2026-10-12.json").write_text(json.dumps(legacy, ensure_ascii=False), encoding="utf-8")
+            receipt = write_event(data_dir, normalize({"date": "2026-10-12", "event_id": "SESSION-2", "modules": {"资料分析": {"wrong": 1, "total": 5}}}))
+            day = json.loads((daily / "2026-10-12.json").read_text(encoding="utf-8"))
+            self.assertEqual(receipt["status"], "written")
+            self.assertEqual(day["schema_version"], 1)
+            self.assertEqual([item["event_id"] for item in day["events"]], ["LEGACY-1", "SESSION-2"])
+
+    def test_daily_writer_rejects_unknown_newer_schema_version(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            data_dir = Path(tmp)
+            daily = data_dir / "daily"
+            daily.mkdir(parents=True)
+            future = {"schema_version": 2, "date": "2026-10-12", "events": [], "event_ids": [], "modules": {}}
+            (daily / "2026-10-12.json").write_text(json.dumps(future, ensure_ascii=False), encoding="utf-8")
+            with self.assertRaises(InputError):
+                write_event(data_dir, normalize({"date": "2026-10-12", "event_id": "SESSION-X", "modules": {"资料分析": {"wrong": 1, "total": 5}}}))
+            self.assertEqual(json.loads((daily / "2026-10-12.json").read_text(encoding="utf-8"))["schema_version"], 2)
+
+    def test_exam_research_mount_links_resolve_when_mount_installed(self):
+        mount = ROOT / ".agents/skills/xingce-review-pro/references/method-libraries/exam-research"
+        index = mount / "INDEX.md"
+        if not index.is_file():
+            self.skipTest("exam-research mount 未安装（新克隆）；恢复流程见 README")
+        self.assertFalse(index.is_symlink(), "INDEX.md 应是仓库内实体文件而非软链接")
+        dangling = sorted(p.name for p in mount.iterdir() if p.is_symlink() and not p.exists())
+        self.assertEqual(dangling, [], f"挂载软链接失效，故障会拖到讲题中途才暴露: {dangling}")
 
     def test_daily_writer_blocks_invalid_inputs_without_creating_records(self):
         with tempfile.TemporaryDirectory() as tmp:
